@@ -1,5 +1,3 @@
-require "debug"
-
 class XmasGrid
   def initialize(grid)
     @grid = grid
