@@ -19,14 +19,7 @@ class Update
   def midpoint = @sequence[@sequence.length / 2].to_i
 
   def sort!
-    (0...@sequence.length).each do |idx|
-      (idx...@sequence.length).each do |jdx|
-        if Rules.fetch(@sequence[jdx]).include? @sequence[idx]
-          @sequence[idx], @sequence[jdx] = @sequence[jdx], @sequence[idx]
-        end
-      end
-    end
-
+    @sequence.sort! { |a, b| Rules.fetch(b).include?(a) ? 1 : 0 }
     self
   end
 end
