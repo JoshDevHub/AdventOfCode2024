@@ -17,12 +17,9 @@ class TopographicMap < Grid
       return trail_end_count + 1
     end
 
-    CARDINALS.sum do |dr, dc|
-      nr, nc = row + dr, col + dc
-      next 0 unless valid_position?(nr, nc) && @grid[nr][nc].pred == @grid[row][col]
-
-      dfs(nr, nc, trail_end_count, visit_set:)
-    end
+    adjacents_for_position(row, col, adj_directions: CARDINALS)
+      .select { @grid[_1][_2] - 1 == @grid[row][col] }
+      .sum { dfs(_1, _2, trail_end_count, visit_set:) }
   end
 end
 
