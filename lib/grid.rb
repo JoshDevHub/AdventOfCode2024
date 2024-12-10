@@ -21,23 +21,10 @@ class Grid
     row >= 0 && row < @grid.length && col >= 0 && col < @grid.length
   end
 
-  def get(row, col)
-    @grid[row][col] if valid_position?(row, col)
-  end
-
   def adjacents_for_position(row, col, adj_directions: ALL_DIRECTIONS)
     adj_directions.filter_map do |d_row, d_col|
       a_row, a_col = [row + d_row, col + d_col]
-      get(a_row, a_col)
-    end
-  end
-
-  def collect_adjacents_in_direction(row, col, adj_directions:, length:)
-    adj_directions.map do |d_row, d_col|
-      length.times.filter_map do |offset|
-        a_row, a_col = [row + (d_row * offset), col + (d_col * offset)]
-        get(a_row, a_col)
-      end
+      [a_row, a_col] if valid_position?(a_row, a_col)
     end
   end
 end
