@@ -9,33 +9,31 @@ end
 class StoneLine
   using IntegerHelpers
 
-  def initialize(input) = @input = input.clone
+  def initialize(input)
+   @input = input
+   @cache = {}
+  end
 
-  def count = @input.values.sum
+  def total_for(blink_count:) = @input.sum { blink(_1, blink_count) }
 
-  def blink!(count)
-    count.times do
-      merge_dict = Hash.new(0)
-      @input.each do |n, tally|
-        if n.zero?
-          merge_dict[1] += tally
-        elsif n.even_digits?
-          n.split.each { merge_dict[_1] += tally }
-        else
-          merge_dict[n * 2024] += tally
-        end
+  private
 
-        @input[n] = 0
+  def blink(stone, iteration)
+    return 1 if iteration == 0
+
+    @cache[[stone, iteration]] ||=
+      if stone == 0
+        blink(1, iteration - 1)
+      elsif stone.even_digits?
+        stone.split.sum { blink(_1, iteration - 1) }
+      else
+        blink(stone * 2024, iteration - 1)
       end
-
-      @input.merge!(merge_dict) { |_k, old, new| old + new }
-    end
-
-    self
   end
 end
 
-input = ARGF.read.split.map(&:to_i).tally
+input = ARGF.read.split.map(&:to_i)
+stones = StoneLine.new(input)
 
-p StoneLine.new(input).blink!(25).count # p1
-p StoneLine.new(input).blink!(75).count # p2
+p stones.total_for(blink_count: 25) # p1
+p stones.total_for(blink_count: 75) # p2
