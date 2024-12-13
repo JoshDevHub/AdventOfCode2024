@@ -1,30 +1,33 @@
 class Grid
-  def initialize(grid)
-    @grid = grid
-  end
-
-  CARDINALS = [[1, 0], [0, 1], [-1, 0], [0, -1]].freeze
-  DIAGONALS = [[-1, -1], [1, 1], [-1, 1], [1, -1]].freeze
-
-  ALL_DIRECTIONS = CARDINALS + DIAGONALS
-
-  include Enumerable
-  def each
-    @grid.each_with_index do |row, row_idx|
-      row.each_with_index do |elem, col_idx|
-        yield elem, row_idx, col_idx
+  def self.from_raw_input(input)
+    grid = input.split.flat_map.with_index do |row, row_idx|
+      row.chars.map.with_index do |char, col_idx|
+        char_transform = yield(char) if block_given?
+        [Position[row_idx, col_idx], char_transform || char]
       end
     end
+
+    new(grid.to_h)
   end
 
-  def valid_position?(row, col)
-    row >= 0 && row < @grid.length && col >= 0 && col < @grid.length
+  def initialize(grid) = @grid = grid
+
+  Position = Data.define(:row, :col) do
+    def +(other) = Position[row + other.row, col + other.col]
   end
 
-  def adjacents_for_position(row, col, adj_directions: ALL_DIRECTIONS)
-    adj_directions.filter_map do |d_row, d_col|
-      a_row, a_col = [row + d_row, col + d_col]
-      [a_row, a_col] if valid_position?(a_row, a_col)
-    end
+  LABELED_DIRS = {
+    up: Position[-1, 0], upleft: Position[-1, -1],
+    left: Position[0, -1], upright: Position[-1, 1],
+    right: Position[0, 1], downright: Position[1, 1],
+    down: Position[1, 0], downleft: Position[1, -1]
+  }
+
+  CARDINALS = LABELED_DIRS.values_at(:up, :down, :left, :right)
+  DIAGONALS = LABELED_DIRS.values_at(:upleft, :upright, :downleft, :downright)
+  ALL_DIRECTIONS = LABELED_DIRS.values
+
+  def adjacents_for_position(pos, adj_dirs: ALL_DIRECTIONS)
+    adj_dirs.map { _1 + pos }.select(&@grid)
   end
 end
